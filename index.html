@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シンプルチャット</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        #chat-box {
+            width: 90%;
+            max-width: 500px;
+            height: 70vh;
+            border: 1px solid #ccc;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #message-input {
+            width: 90%;
+            max-width: 500px;
+            display: flex;
+        }
+        #message-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        #message-input button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>シンプルチャット</h1>
+    <div id="chat-box"></div>
+    <div id="message-input">
+        <input type="text" id="message" placeholder="メッセージを入力...">
+        <button id="send-btn">送信</button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-database.js"></script>
+    <script>
+        // Firebase設定
+        const firebaseConfig = {
+            apiKey: "あなたのAPIキー",
+            authDomain: "あなたのプロジェクトID.firebaseapp.com",
+            databaseURL: "https://あなたのプロジェクトID.firebaseio.com",
+            projectId: "あなたのプロジェクトID",
+            storageBucket: "あなたのプロジェクトID.appspot.com",
+            messagingSenderId: "あなたの送信者ID",
+            appId: "あなたのアプリID"
+        };
+
+        // Firebase初期化
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const chatBox = document.getElementById("chat-box");
+        const messageInput = document.getElementById("message");
+        const sendButton = document.getElementById("send-btn");
+
+        // メッセージを送信
+        sendButton.addEventListener("click", () => {
+            const message = messageInput.value.trim();
+            if (message) {
+                db.ref("chat").push({ message });
+                messageInput.value = "";
+            }
+        });
+
+        // メッセージを表示
+        db.ref("chat").on("child_added", (snapshot) => {
+            const data = snapshot.val();
+            const messageDiv = document.createElement("div");
+            messageDiv.textContent = data.message;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight; // 自動スクロール
+        });
+    </script>
+</body>
+</html>
